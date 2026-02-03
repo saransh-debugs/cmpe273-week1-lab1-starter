@@ -1,26 +1,47 @@
-# CMPE 273 – Week 1 Lab 1: Your First Distributed System (Starter)
+# Python HTTP track — local run guide
 
-This starter provides two implementation tracks:
-- `python-http/` (Flask + requests)
-- `go-http/` (net/http)
+## Prerequisites
+- Python 3.10+
+- `curl` for manual verification (or `Postman` for GUI-based testing)
 
-Pick **one** track for Week 1.
+## Launch Service A
+1. `cd service-a`
+2. `python -m venv .venv`
+3. `source .venv/bin/activate`
+4. `pip install -r requirements.txt`
+5. `python app.py`
 
-## Lab Goal
-Build **two services** that communicate over the network:
-- **Service A** (port 8080): `/health`, `/echo?msg=...`
-- **Service B** (port 8081): `/health`, `/call-echo?msg=...` calls Service A
+Service A listens on `127.0.0.1:8080`
 
-Minimum requirements:
-- Two independent processes
-- HTTP (or gRPC if you choose stretch)
-- Basic logging per request (service name, endpoint, status, latency)
-- Timeout handling in Service B
-- Demonstrate independent failure (stop A; B returns 503 and logs error)
+## Launch Service B
+1. Open a second terminal, then `cd service-b`
+2. `python -m venv .venv`
+3. `source .venv/bin/activate`
+4. `pip install -r requirements.txt`
+5. `python app.py`
 
-## Deliverables
-1. Repo link
-2. README updates:
-   - how to run locally
-   - success + failure proof (curl output or screenshot)
-   - 1 short paragraph: “What makes this distributed?”
+Service B listens on `127.0.0.1:8081`
+
+## Quick validation
+- `curl http://127.0.0.1:8080/health`
+- `curl http://127.0.0.1:8081/call-echo?msg=hello`
+
+If Service A is stopped, Service B returns `service_a: "unavailable"` plus `503`.
+
+## Cleanup
+- Stop each flask server with `Ctrl+C`
+- Remove `.venv` directories if you want a clean state
+
+## What makes this is distributed
+- The system is distributed since it runs on two different processes that communicate using the HTTP protocol rather than as a single program. Both the service has its own memory and fails independently, i.e., when service A crashes, service B still keeps on running and handles the error gracefully and returns a `503` error instead of completely failing, which would have been the case had these services been running on the same process.
+
+# Screenshots
+
+## Health CURL
+ ![Health CURL](images/health.png)
+
+## Successful CURL
+![Successful CURL](images/success.png)
+
+## Failure CURL
+ ![Failure CURL](images/failure.png)
